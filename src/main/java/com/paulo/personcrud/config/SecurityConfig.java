@@ -32,7 +32,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .addFilterBefore(filterAcesso(), SessionManagementFilter.class)
                 .csrf().disable()
-                .authorizeRequests().antMatchers(HttpMethod.OPTIONS, "/**").permitAll().anyRequest().authenticated()
+                .authorizeRequests()
+                .antMatchers("/source/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**")
+                .permitAll().anyRequest().authenticated()
                 .and().httpBasic();
     }
 

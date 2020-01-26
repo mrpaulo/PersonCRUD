@@ -7,6 +7,7 @@ package com.paulo.personcrud.service;
 
 import com.paulo.personcrud.model.Pessoa;
 import com.paulo.personcrud.repository.PessoaRepository;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,11 +34,16 @@ public class PessoaService {
         return pessoaRepository.findByCpf(cpf);
     }
 
-    public Pessoa salvar(Pessoa pessoa) {
+    public Pessoa salvar(Pessoa pessoa) throws ExcecaoPropria {        
+        Utils.validaPessoa(pessoa);
+                
+        pessoa.setDataCadastro(new Date());
         return pessoaRepository.saveAndFlush(pessoa);
     }
 
     public Pessoa editar(Long pessoaId, Pessoa pessoaDetalhes) throws ExcecaoPropria {
+        Utils.validaPessoa(pessoaDetalhes);
+        
         Pessoa pessoa = buscarPorId(pessoaId);
         checarPessoaNull(pessoaId, pessoa);
         pessoa.setNome(pessoaDetalhes.getNome());
@@ -47,7 +53,7 @@ public class PessoaService {
         pessoa.setNaturalidade(pessoaDetalhes.getNaturalidade());
         pessoa.setNacionalidade(pessoaDetalhes.getNacionalidade());
         pessoa.setCpf(pessoaDetalhes.getCpf());
-
+        pessoa.setDataAtualizacao(new Date());
         return pessoaRepository.saveAndFlush(pessoa);
     }
 

@@ -10,9 +10,11 @@ import com.paulo.personcrud.model.Pessoa;
 import com.paulo.personcrud.model.Usuario;
 import com.paulo.personcrud.service.ExcecaoPropria;
 import com.paulo.personcrud.service.PessoaService;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,50 +37,51 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1")
 public class PessoaController {
 
-	@Autowired
-	PessoaService pessoaService;
+    @Autowired
+    PessoaService pessoaService;
 
-	@GetMapping("/pessoas")
-	public List<Pessoa> getTodasPessoas() {
-		return pessoaService.buscarTodas();
-	}
+    @GetMapping("/pessoas")
+    public List<Pessoa> getTodasPessoas() {
+        List <Pessoa> listaPessoas = pessoaService.buscarTodas();
+        
+        return listaPessoas.stream().sorted(Comparator.comparing(Pessoa::getNome)).collect(Collectors.toList());
+    }
 
-	@GetMapping("/pessoa/{id}")
-	public ResponseEntity<Pessoa> getPessoaPorId(@PathVariable(value = "id") Long pessoaId) throws ExcecaoPropria {
-		Pessoa pessoa = pessoaService.buscarPorId(pessoaId);
+    @GetMapping("/pessoa/{id}")
+    public ResponseEntity<Pessoa> getPessoaPorId(@PathVariable(value = "id") Long pessoaId) throws ExcecaoPropria {
+        Pessoa pessoa = pessoaService.buscarPorId(pessoaId);
 
-		pessoaService.checarPessoaNull(pessoaId, pessoa);
-		return ResponseEntity.ok().body(pessoa);
-	}
+        pessoaService.checarPessoaNull(pessoaId, pessoa);
+        return ResponseEntity.ok().body(pessoa);
+    }
 
-	@PostMapping("/pessoa")
-	public Pessoa criarPessoa(@Valid @RequestBody Pessoa pessoa) {
-		Pessoa pessoaSalva = pessoaService.salvar(pessoa);
-		return pessoaService.buscarPorId(pessoaSalva.getId());
-	}
+    @PostMapping("/pessoa")
+    public Pessoa criarPessoa(@Valid @RequestBody Pessoa pessoa) throws ExcecaoPropria {
+        Pessoa pessoaSalva = pessoaService.salvar(pessoa);
+        return pessoaService.buscarPorId(pessoaSalva.getId());
+    }
 
-	@PutMapping("/pessoa/{id}")
-	public ResponseEntity<Pessoa> updatePessoa(@PathVariable(value = "id") Long pessoaId, @Valid @RequestBody Pessoa pessoaDetalhes) throws ExcecaoPropria {
-		
-		final Pessoa pessoaAtualizada = pessoaService.editar(pessoaId, pessoaDetalhes);
-		return ResponseEntity.ok(pessoaAtualizada);
-	}
+    @PutMapping("/pessoa/{id}")
+    public ResponseEntity<Pessoa> updatePessoa(@PathVariable(value = "id") Long pessoaId, @Valid @RequestBody Pessoa pessoaDetalhes) throws ExcecaoPropria {
 
-	@DeleteMapping("/pessoa/{id}")
-	public Map<String, Boolean> deletePessoa(@PathVariable(value = "id") Long pessoaId) throws ExcecaoPropria {
-		Pessoa pessoa = pessoaService.buscarPorId(pessoaId);
-		pessoaService.checarPessoaNull(pessoaId, pessoa);
+        final Pessoa pessoaAtualizada = pessoaService.editar(pessoaId, pessoaDetalhes);
+        return ResponseEntity.ok(pessoaAtualizada);
+    }
 
-		pessoaService.excluir(pessoaId);
-		Map<String, Boolean> response = new HashMap<>();
-		response.put("deleted", Boolean.TRUE);
-		return response;
-	}
+    @DeleteMapping("/pessoa/{id}")
+    public Map<String, Boolean> deletePessoa(@PathVariable(value = "id") Long pessoaId) throws ExcecaoPropria {
+        Pessoa pessoa = pessoaService.buscarPorId(pessoaId);
+        pessoaService.checarPessoaNull(pessoaId, pessoa);
 
-	
-	
-	@GetMapping(produces = "application/json")
-	@RequestMapping({ "/validateLogin" })
-	public Usuario validateLogin() {
-		return new Usuario(ESituacao.AUTORIZADO);
-	}}
+        pessoaService.excluir(pessoaId);
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("deleted", Boolean.TRUE);
+        return response;
+    }
+
+    @PostMapping(value = "/validateLogin", produces = "application/json")
+    public Usuario validateLogin(@Valid @RequestBody Usuario usuario) {
+
+        return new Usuario(ESituacao.AUTORIZADO);
+    }
+}

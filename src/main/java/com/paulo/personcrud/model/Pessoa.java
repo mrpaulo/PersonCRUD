@@ -7,6 +7,7 @@ package com.paulo.personcrud.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -29,16 +30,25 @@ public class Pessoa implements Serializable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PESSOA")
     @Id
     private long id;
-    
+    @Column(length = 100)
+    @NotNull
     private String nome;
+    @Column(length = 1)
     private String sexo;
+    @Column(length = 100)
     private String email;
     @NotNull
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date dataNascimento;
+    @Column(length = 100)
     private String naturalidade;
+    @Column(length = 100)
     private String nacionalidade;
+    
+    @Column(unique = true, length = 11)
+    @NotNull
     private String cpf;
+    
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date dataCadastro;
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
