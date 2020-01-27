@@ -1,0 +1,36 @@
+version: "2"
+services:
+  postgres:
+    image: postgres:latest
+    network_mode: bridge
+    container_name: postgresbd
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+    - 5432
+    ports:
+      - 5432:5432
+    environment:
+         - POSTGRES_PASSWORD=postgres
+         - POSTGRES_USER=postgres
+         - POSTGRES_DB=cadastro_pessoa
+         - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/cadastro-pessoa
+    restart: unless-stopped
+# BACK*****************************************
+  springbootapp:
+    image: rodrigues/backpersoncrud:1
+    network_mode: bridge
+    container_name: backperson
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    links:
+      - postgres
+
+volumes:
+  postgres-data:
+
