@@ -1,8 +1,7 @@
 version: "2"
 services:
   postgres:
-    image: postgres:latest
-    network_mode: bridge
+    image: postgres:latest    
     container_name: postgresbd
     volumes:
       - postgres-data:/var/lib/postgresql/data
@@ -10,27 +9,47 @@ services:
     - 5432
     ports:
       - 5432:5432
-    environment:
+    environment:         
          - POSTGRES_PASSWORD=postgres
          - POSTGRES_USER=postgres
          - POSTGRES_DB=cadastro_pessoa
-         - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/cadastro-pessoa
     restart: unless-stopped
+    networks:
+      - backend
 # BACK*****************************************
   springbootapp:
-    image: rodrigues/backpersoncrud:1
-    network_mode: bridge
+    image: rodrigues/backpersoncrud:1    
     container_name: backperson
     expose:
-      - 8080
+      - 4060
     ports:
-      - 8080:8080
+      - 4060:4060
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/cadastro_pessoa
     restart: unless-stopped
     depends_on:
       - postgres
     links:
       - postgres
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend
+      - frontend
+# FRONt*********************************************
+  app-client:
+    image: rodrigues/frontapppersoncrud:1    
+    container_name: frontperson    
+    ports:
+      - "9090:80" # Map the exposed port 80 on the container to port 9090 on the host machine
+    restart: always
+    depends_on:
+      - springbootapp
+    networks:
+      - frontend  
 
 volumes:
   postgres-data:
+
+networks:
+  backend:
+  frontend:
 
