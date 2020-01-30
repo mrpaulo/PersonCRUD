@@ -36,7 +36,7 @@ services:
       - frontend
 # FRONt*********************************************
   app-client:
-    image: rodrigues/frontapppersoncrud:1    
+    image: rodrigues/frontapppersoncrud:2   
     container_name: frontperson    
     ports:
       - "9090:80" # Map the exposed port 80 on the container to port 9090 on the host machine
