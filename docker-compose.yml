@@ -1,10 +1,12 @@
+#Este arquivo deve estar na mesma pasta dos dois projetos (PersonCRUD e front_pessoa_crud)
 version: "2"
 services:
   postgres:
     image: postgres:latest    
-    container_name: postgresbd
+    container_name: postgres_bd
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     expose:
     - 5432
     ports:
@@ -17,9 +19,10 @@ services:
     networks:
       - backend
 # BACK*****************************************
-  springbootapp:
-    image: rodrigues/backpersoncrud:1    
-    container_name: backperson
+  app-server:
+    build:
+      context: PersonCRUD # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+      dockerfile: Dockerfile
     expose:
       - 4060
     ports:
@@ -36,13 +39,14 @@ services:
       - frontend
 # FRONt*********************************************
   app-client:
-    image: rodrigues/frontapppersoncrud:2   
-    container_name: frontperson    
+    build:
+      context: front_pessoa_crud # Use an image built from the specified dockerfile in the `polling-app-server` directory.
+      dockerfile: Dockerfile
     ports:
       - "9090:80" # Map the exposed port 80 on the container to port 9090 on the host machine
     restart: always
     depends_on:
-      - springbootapp
+      - app-server
     networks:
       - frontend  
 
